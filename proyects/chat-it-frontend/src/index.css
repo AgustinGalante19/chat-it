@@ -1,0 +1,30 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@keyframes fade-in {
+  0% {
+    opacity: 0;
+  }
+
+  100% {
+    opacity: 1;
+  }
+}
+
+dialog {
+  /* dialog styles */
+
+  /* Initially invisible */
+  opacity: 0;
+}
+
+dialog[open] {
+  /* Apply animation properties to the open dialog */
+  opacity: 1;
+  animation: fade-in 0.2s ease-in-out;
+}
+
+/* dialog::backdrop {
+   Styles for the backdrop
+} */

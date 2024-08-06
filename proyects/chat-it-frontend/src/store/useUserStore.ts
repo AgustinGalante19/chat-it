@@ -3,7 +3,7 @@ import { persist } from 'zustand/middleware';
 
 interface UserState {
   userId: null | string;
-  currentChatId: null | string;
+  toId: null | string;
   isAuth: boolean;
 }
 
@@ -15,7 +15,7 @@ interface UserStore {
 export const useUserStore = create(
   persist<UserStore>(
     (set) => ({
-      userState: { userId: null, currentChatId: null, isAuth: false },
+      userState: { userId: null, toId: null, isAuth: false },
       setUserState: (newState: Partial<UserState>) =>
         set((state) => ({
           userState: { ...state.userState, ...newState },

@@ -3,14 +3,16 @@ import { useUserStore } from '@/store/useUserStore';
 import { toast } from 'react-toastify';
 import { useNavigate } from 'react-router-dom';
 import { useRef } from 'react';
-import { X } from 'lucide-react';
 import Button from '@/components/controls/button';
 import Input from '@/components/controls/input';
+import Modal from '@/components/ui/modal';
 
 export default function Home() {
   const { setUserState, userState } = useUserStore();
 
-  const dialogRef = useRef<HTMLDialogElement>(null);
+  const joinDialogRef = useRef<HTMLDialogElement>(null);
+  const startDialogRef = useRef<HTMLDialogElement>(null);
+
   const navigate = useNavigate();
 
   const handleCreateAccount = async () => {
@@ -28,25 +30,21 @@ export default function Home() {
   };
 
   const handleStartChat = () => {
-    const newChatId = v4();
-    setUserState({ ...userState, currentChatId: newChatId });
-    navigate('/chat');
+    startDialogRef.current?.showModal();
   };
-
-  const handleOpenJoinDialog = () => dialogRef.current?.showModal();
-  const handleCloseJoinDialog = () => dialogRef.current?.close();
 
   const handleJoinChat = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const formData = new FormData(e.currentTarget);
-    const chatId = formData.get('chatId');
-
+    const toId = formData.get('userId');
     setUserState({
       ...userState,
-      currentChatId: chatId?.toString() ?? '',
+      toId: toId?.toString() ?? '',
     });
     navigate('/chat');
   };
+
+  const handleOpenJoinDialog = () => joinDialogRef.current?.showModal();
 
   return (
     <div className='flex flex-col items-center justify-center pt-48 px-16 max-sm:px-4'>
@@ -66,28 +64,29 @@ export default function Home() {
             <Button title='Start chat' onClick={handleStartChat}>
               Start chat 💬
             </Button>
-            <span className='text-center text-neutral-400'>---or---</span>
+            <div className='flex items-center justify-center gap-1'>
+              <div className='flex h-[1px] w-full bg-neutral-400'></div>
+              <p className='text-neutral-400 m-auto h-full'>or</p>
+              <div className='flex h-[1px] w-full bg-neutral-400'></div>
+            </div>
             <Button title='Join a chat' onClick={handleOpenJoinDialog}>
               Join a chat 💬
             </Button>
           </div>
         )}
       </main>
-      <dialog
-        ref={dialogRef}
-        className='p-4 rounded-md backdrop:bg-neutral-950/50 bg-neutral-800 open:animate-fade-in'
-      >
-        <div className='flex justify-between items-center  text-primary'>
-          <span className='text-lg font-semibold'>Join a chat</span>
-          <button onClick={handleCloseJoinDialog}>
-            <X />
-          </button>
-        </div>
+      <Modal dialogRef={startDialogRef} title='Start chat'>
         <form className='flex gap-2 mt-2' onSubmit={handleJoinChat}>
-          <Input placeholder='Paste the chat id here' name='chatId' />
+          <Input placeholder='Paste the user id here' name='userId' />
+          <Button type='submit'>Start</Button>
+        </form>
+      </Modal>
+      <Modal dialogRef={joinDialogRef} title='Join Chat'>
+        <form className='flex gap-2 mt-2' onSubmit={handleJoinChat}>
+          <Input placeholder='Paste the user id here' name='userId' />
           <Button type='submit'>Join</Button>
         </form>
-      </dialog>
+      </Modal>
     </div>
   );
 }

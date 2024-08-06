@@ -1,144 +1,79 @@
 import Button from '@/components/controls/button';
 import Input from '@/components/controls/input';
+import UserMessage from '@/components/ui/UserMessage';
 import { useUserStore } from '@/store/useUserStore';
-import { ArrowUp, Copy } from 'lucide-react';
-import { twMerge } from 'tailwind-merge';
+import Message from '@/types/Message';
+import { ArrowUp } from 'lucide-react';
+import { useEffect, useState } from 'react';
+import useWebSocket, { ReadyState } from 'react-use-websocket';
 
-interface Message {
-  content: string;
-  senderId: string;
-}
+const WS_URL = 'ws://localhost:8000';
 
-interface Props {
-  message: Message;
-  userId: string;
-}
-
-const MESSAGES: Message[] = [
-  {
-    content:
-      'Lorem ipsum dolor sit amet consectetur adipisicing elit. Autem debitis nisi quibusdam explicabo, harum voluptatibus.',
-    senderId: 'fc52905c-cf7c-490a-ba59-86ca203f8f12',
-  },
-  {
-    content: 'Lorem ipsum dolor sit amet consectetur adipisicing elit',
-    senderId: 'fc52905c-cf7c-490a-ba59-86ca203f8f12',
-  },
-  {
-    content: 'Lorem ipsum dolor sit amet consectetur adipisicing elit',
-    senderId: '',
-  },
-  {
-    content:
-      'Lorem ipsum dolor sit amet consectetur adipisicing elit. Sunt impedit quasi amet culpa sed! Nam blanditiis mollitia beatae, tempora animi, voluptates delectus repudiandae tenetur dolorum quia modi, ad molestias fugiat?',
-    senderId: 'fc52905c-cf7c-490a-ba59-86ca203f8f12',
-  },
-  {
-    content:
-      'Lorem ipsum dolor sit amet consectetur adipisicing elit. Sunt impedit quasi amet culpa sed! Nam blanditiis mollitia beatae, tempora animi, voluptates delectus repudiandae tenetur dolorum quia modi, ad molestias fugiat?',
-    senderId: 'fc52905c-cf7c-490a-ba59-86ca203f8f12',
-  },
-  {
-    content:
-      'Lorem ipsum dolor sit amet consectetur adipisicing elit. Sunt impedit quasi amet culpa sed! Nam blanditiis mollitia beatae, tempora animi, voluptates delectus repudiandae tenetur dolorum quia modi, ad molestias fugiat?',
-    senderId: 'fc52905c-cf7c-490a-ba59-86ca203f8f12',
-  },
-  {
-    content:
-      'Lorem ipsum dolor sit amet consectetur adipisicing elit. Sunt impedit quasi amet culpa sed! Nam blanditiis mollitia beatae, tempora animi, voluptates delectus repudiandae tenetur dolorum quia modi, ad molestias fugiat?',
-    senderId: 'fc52905c-cf7c-490a-ba59-86ca203f8f12',
-  },
-  {
-    content:
-      'Lorem ipsum dolor sit amet consectetur adipisicing elit. Sunt impedit quasi amet culpa sed! Nam blanditiis mollitia beatae, tempora animi, voluptates delectus repudiandae tenetur dolorum quia modi, ad molestias fugiat?',
-    senderId: 'fc52905c-cf7c-490a-ba59-86ca203f8f12',
-  },
-  {
-    content:
-      'Lorem ipsum dolor sit amet consectetur adipisicing elit. Sunt impedit quasi amet culpa sed! Nam blanditiis mollitia beatae, tempora animi, voluptates delectus repudiandae tenetur dolorum quia modi, ad molestias fugiat?',
-    senderId: 'fc52905c-cf7c-490a-ba59-86ca203f8f12',
-  },
-  {
-    content:
-      'Lorem ipsum dolor sit amet consectetur adipisicing elit. Sunt impedit quasi amet culpa sed! Nam blanditiis mollitia beatae, tempora animi, voluptates delectus repudiandae tenetur dolorum quia modi, ad molestias fugiat?',
-    senderId: 'fc52905c-cf7c-490a-ba59-86ca203f8f12',
-  },
-  {
-    content:
-      'Lorem ipsum dolor sit amet consectetur adipisicing elit. Sunt impedit quasi amet culpa sed! Nam blanditiis mollitia beatae, tempora animi, voluptates delectus repudiandae tenetur dolorum quia modi, ad molestias fugiat?',
-    senderId: 'fc52905c-cf7c-490a-ba59-86ca203f8f12',
-  },
-  {
-    content:
-      'Lorem ipsum dolor sit amet consectetur adipisicing elit. Sunt impedit quasi amet culpa sed! Nam blanditiis mollitia beatae, tempora animi, voluptates delectus repudiandae tenetur dolorum quia modi, ad molestias fugiat?',
-    senderId: 'fc52905c-cf7c-490a-ba59-86ca203f8f12',
-  },
-  {
-    content:
-      'Lorem ipsum dolor sit amet consectetur adipisicing elit. Sunt impedit quasi amet culpa sed! Nam blanditiis mollitia beatae, tempora animi, voluptates delectus repudiandae tenetur dolorum quia modi, ad molestias fugiat?',
-    senderId: 'fc52905c-cf7c-490a-ba59-86ca203f8f12',
-  },
-  {
-    content:
-      'Lorem ipsum dolor sit amet consectetur adipisicing elit. Sunt impedit quasi amet culpa sed! Nam blanditiis mollitia beatae, tempora animi, voluptates delectus repudiandae tenetur dolorum quia modi, ad molestias fugiat?',
-    senderId: 'fc52905c-cf7c-490a-ba59-86ca203f8f12',
-  },
-  {
-    content:
-      'Lorem ipsum dolor sit amet consectetur adipisicing elit. Sunt impedit quasi amet culpa sed! Nam blanditiis mollitia beatae, tempora animi, voluptates delectus repudiandae tenetur dolorum quia modi, ad molestias fugiat?',
-    senderId: 'fc52905c-cf7c-490a-ba59-86ca203f8f12',
-  },
-  {
-    content:
-      'Lorem ipsum dolor sit amet consectetur adipisicing elit. Sunt impedit quasi amet culpa sed! Nam blanditiis mollitia beatae, tempora animi, voluptates delectus repudiandae tenetur dolorum quia modi, ad molestias fugiat?',
-    senderId: 'fc52905c-cf7c-490a-ba59-86ca203f8f12',
-  },
-  {
-    content:
-      'Lorem ipsum dolor sit amet consectetur adipisicing elit. Sunt impedit quasi amet culpa sed! Nam blanditiis mollitia beatae, tempora animi, voluptates delectus repudiandae tenetur dolorum quia modi, ad molestias fugiat?',
-    senderId: 'fc52905c-cf7c-490a-ba59-86ca203f8f12',
-  },
-  {
-    content:
-      'Lorem ipsum dolor sit amet consectetur adipisicing elit. Sunt impedit quasi amet culpa sed! Nam blanditiis mollitia beatae, tempora animi, voluptates delectus repudiandae tenetur dolorum quia modi, ad molestias fugiat?',
-    senderId: 'fc52905c-cf7c-490a-ba59-86ca203f8f12',
-  },
-  {
-    content:
-      'Lorem ipsum dolor sit amet consectetur adipisicing elit. Sunt impedit quasi amet culpa sed! Nam blanditiis mollitia beatae, tempora animi, voluptates delectus repudiandae tenetur dolorum quia modi, ad molestias fugiat?',
-    senderId: 'fc52905c-cf7c-490a-ba59-86ca203f8f12',
-  },
-];
-
-const UserMessage = ({ message, userId }: Props) => {
-  const isOwnAuthor = message.senderId === userId;
-  return (
-    <div className={`flex ${isOwnAuthor ? 'justify-end' : 'justify-start'}`}>
-      <div
-        className={twMerge(
-          `${
-            isOwnAuthor
-              ? 'bg-primary text-neutral-800'
-              : 'bg-neutral-700/80 text-white'
-          }`,
-          'w-fit py-1 px-2 font-medium rounded'
-        )}
-      >
-        {message.content}
-      </div>
-    </div>
-  );
-};
 function ChatRoom() {
   const { userState } = useUserStore();
+  const [messages, setMessages] = useState<Message[]>([]);
+  const [currentUsers, setCurrentUsers] = useState<string[]>([]);
+  const [input, setInput] = useState('');
+  const { sendJsonMessage, lastJsonMessage, readyState } = useWebSocket(
+    WS_URL,
+    {
+      share: false,
+      shouldReconnect: () => true,
+    }
+  );
+
+  useEffect(() => {
+    console.log('Connection state changed');
+    if (readyState === ReadyState.OPEN) {
+      sendJsonMessage({
+        type: 'register',
+        id: userState.userId,
+      });
+    }
+  }, [readyState]);
+
+  useEffect(() => {
+    console.log('last json message', lastJsonMessage);
+    const newMessage = lastJsonMessage as any;
+    if (newMessage?.type === 'register') {
+      setCurrentUsers([...currentUsers, newMessage.id]);
+    }
+
+    if (newMessage?.time) {
+      setMessages((prevState) => [
+        ...prevState,
+        { senderId: newMessage?.id, content: newMessage?.content },
+      ]);
+    }
+  }, [lastJsonMessage]);
+
+  const sendMessage = () => {
+    const newMessage = {
+      type: 'message',
+      id: userState.userId,
+      toId: userState.toId,
+      content: input,
+    };
+    console.log(newMessage);
+    sendJsonMessage(newMessage);
+    setMessages([
+      ...messages,
+      {
+        senderId: userState?.userId as string,
+        content: input,
+      },
+    ]);
+    setInput('');
+  };
 
   return (
     <div className='flex container mx-auto gap-4 justify-center relative p-8'>
-      <aside className='border-2 border-primary rounded-md p-2 space-y-2 min-w-fit max-h-28'>
+      <aside className='border-2 border-primary rounded-md p-2 space-y-2 min-w-fit max-h-28 max-lg:hidden'>
         <span className='text-primary font-bold text-lg'>Current users</span>
         <ul>
-          <li>{userState.userId}</li>
-          <li>{userState.userId}</li>
+          {currentUsers.map((userId) => (
+            <li key={userId}>{userId}</li>
+          ))}
         </ul>
       </aside>
       <main className='border-2 relative border-primary rounded-md w-full'>
@@ -146,22 +81,13 @@ function ChatRoom() {
           <header className='w-fit mx-auto flex items-center gap-2'>
             <span className='text-primary text-2xl font-semibold'>Chat</span>
             <div className='py-2 px-4 flex items-center gap-2 border-2 border-neutral-700 rounded my-2'>
-              <span>{userState.currentChatId}</span>
-              <button
-                title='Copy chat id'
-                type='button'
-                onClick={() => {
-                  navigator.clipboard.writeText(userState.currentChatId ?? '');
-                }}
-              >
-                <Copy className='text-primary' size={16} />
-              </button>
+              <span>{userState.toId}</span>
             </div>
           </header>
         </div>
         <div className=''>
           <div className='w-full flex-col p-4 space-y-2 min-h-[600px] max-h-[600px] scrollbar-thumb-rounded-full scrollbar-track-rounded-full scrollbar scrollbar-thumb-slate-700 scrollbar-track-slate-300 overflow-y-scroll'>
-            {MESSAGES.map((message, i) => (
+            {messages.map((message, i) => (
               <UserMessage
                 key={i}
                 message={message}
@@ -170,10 +96,16 @@ function ChatRoom() {
             ))}
           </div>
           <div className=' flex items-center p-2 w-full gap-2'>
-            <Input placeholder='Send message...' className='w-full' />
+            <Input
+              placeholder='Send message...'
+              className='w-full'
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+            />
             <Button
               title='Send message'
               className='bg-primary text-neutral-800 p-2 rounded-full'
+              onClick={sendMessage}
             >
               <ArrowUp strokeWidth={3} />
             </Button>
